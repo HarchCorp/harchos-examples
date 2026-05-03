@@ -1,0 +1,35 @@
+apiVersion: harchos.harchcorp.io/v1
+kind: Workload
+metadata:
+  name: resnet50-carbon-aware
+  labels:
+    category: pytorch-training
+    difficulty: advanced
+spec:
+  runtime: python:3.11
+  command: python train_carbon_aware.py --epochs 10 --batch-size 64 --carbon-threshold 200 --poll-interval 300
+  resources:
+    gpu:
+      count: 1
+      type: nvidia-a100
+    memory: 16Gi
+    cpu: "4"
+  storage:
+    - name: output
+      mountPath: /output
+      size: 10Gi
+  carbonPolicy:
+    enabled: true
+    threshold: 200          # gCO2/kWh — pause above this
+    region: eu-west-1
+    scheduleFlexible: true  # Allow HarchOS to shift epochs across time
+  env:
+    - name: PYTHONUNBUFFERED
+      value: "1"
+    - name: HARCHOS_CARBON_REGION
+      value: eu-west-1
+  metrics:
+    enable: true
+    interval: 30s
+    extraLabels:
+      carbon_aware: "true"
