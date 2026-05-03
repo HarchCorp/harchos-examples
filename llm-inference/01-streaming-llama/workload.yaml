@@ -1,0 +1,42 @@
+apiVersion: harchos.harchcorp.io/v1
+kind: Workload
+metadata:
+  name: streaming-llama-7b
+  labels:
+    category: llm-inference
+    difficulty: beginner
+spec:
+  runtime: python:3.11
+  command: python inference.py --port 8080 --model meta-llama/Llama-2-7b-chat-hf
+  resources:
+    gpu:
+      count: 1
+      type: nvidia-a100
+    memory: 24Gi
+    cpu: "4"
+  storage:
+    - name: model-cache
+      mountPath: /root/.cache/huggingface
+      size: 50Gi
+  networking:
+    expose: true
+    port: 8080
+    protocol: http
+  autoscaling:
+    minReplicas: 1
+    maxReplicas: 4
+    targetConcurrency: 8
+  env:
+    - name: PYTHONUNBUFFERED
+      value: "1"
+    - name: TRANSFORMERS_CACHE
+      value: /root/.cache/huggingface
+  healthCheck:
+    httpGet:
+      path: /health
+      port: 8080
+    initialDelaySeconds: 120
+    periodSeconds: 30
+  metrics:
+    enable: true
+    interval: 30s
