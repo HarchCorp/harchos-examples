@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+.env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# HarchOS
+.harchos/
+harchos-state.json
+
+# Model artifacts
+*.pt
+*.pth
+*.ckpt
+*.bin
+*.safetensors
+*.gguf
+models/
+
+# Data
+data/raw/
+*.csv.gz
+*.parquet
+
+# Logs
+logs/
+*.log
+
+# Secrets
+.env.local
+.env.production
