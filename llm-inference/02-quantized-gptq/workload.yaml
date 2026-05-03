@@ -1,0 +1,43 @@
+apiVersion: harchos.harchcorp.io/v1
+kind: Workload
+metadata:
+  name: gptq-llama-7b
+  labels:
+    category: llm-inference
+    difficulty: intermediate
+spec:
+  runtime: python:3.11
+  command: python deploy_quantized.py --port 8080 --model TheBloke/Llama-2-7B-Chat-GPTQ
+  resources:
+    gpu:
+      count: 1
+      type: nvidia-l4       # Cost-effective GPU — GPTQ fits on L4
+    memory: 16Gi
+    cpu: "4"
+  storage:
+    - name: model-cache
+      mountPath: /root/.cache/huggingface
+      size: 30Gi
+  networking:
+    expose: true
+    port: 8080
+    protocol: http
+  autoscaling:
+    minReplicas: 1
+    maxReplicas: 8
+    targetConcurrency: 16   # Higher concurrency — quantized model uses less VRAM
+  costOptimization:
+    preferSpotInstances: true
+    maxCostPerHour: 1.50
+  env:
+    - name: PYTHONUNBUFFERED
+      value: "1"
+  healthCheck:
+    httpGet:
+      path: /health
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 30
+  metrics:
+    enable: true
+    interval: 30s
