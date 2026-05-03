@@ -1,0 +1,33 @@
+apiVersion: harchos.harchcorp.io/v1
+kind: Workload
+metadata:
+  name: etl-pipeline
+  labels:
+    category: data-pipelines
+    difficulty: beginner
+spec:
+  runtime: python:3.11
+  command: python etl_pipeline.py --input /data/raw --output /data/processed --chunk-size 10000
+  resources:
+    cpu: "4"
+    memory: 8Gi
+  storage:
+    - name: raw-data
+      mountPath: /data/raw
+      size: 20Gi
+      readOnly: true
+    - name: processed-data
+      mountPath: /data/processed
+      size: 20Gi
+  schedule:
+    cron: "0 2 * * *"     # Run daily at 2 AM UTC
+    timezone: UTC
+  notifications:
+    onComplete: true
+    onFailure: true
+  env:
+    - name: PYTHONUNBUFFERED
+      value: "1"
+  metrics:
+    enable: true
+    interval: 30s
