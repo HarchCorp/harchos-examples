@@ -1,0 +1,42 @@
+apiVersion: harchos.harchcorp.io/v1
+kind: Workload
+metadata:
+  name: rag-pipeline
+  labels:
+    category: llm-inference
+    difficulty: advanced
+spec:
+  runtime: python:3.11
+  command: python rag_pipeline.py --port 8080
+  resources:
+    gpu:
+      count: 1
+      type: nvidia-a100
+    memory: 24Gi
+    cpu: "4"
+  storage:
+    - name: model-cache
+      mountPath: /root/.cache
+      size: 50Gi
+    - name: index-store
+      mountPath: /data/index
+      size: 5Gi
+  networking:
+    expose: true
+    port: 8080
+    protocol: http
+  initContainers:
+    - name: index-builder
+      command: python rag_pipeline.py --no-sample-data --build-index-only
+  env:
+    - name: PYTHONUNBUFFERED
+      value: "1"
+  healthCheck:
+    httpGet:
+      path: /health
+      port: 8080
+    initialDelaySeconds: 180
+    periodSeconds: 30
+  metrics:
+    enable: true
+    interval: 30s
