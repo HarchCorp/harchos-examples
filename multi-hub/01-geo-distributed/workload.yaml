@@ -1,0 +1,58 @@
+apiVersion: harchos.harchcorp.io/v1
+kind: Workload
+metadata:
+  name: geo-distributed-inference
+  labels:
+    category: multi-hub
+    difficulty: intermediate
+spec:
+  runtime: python:3.11
+  command: python deploy_geo.py --hubs eu-west-1,us-east-1,apac-southeast-1
+  multiHub:
+    strategy: geo-distributed
+    routing:
+      mode: latency-based        # Route to lowest-latency hub
+      failover: true             # Auto-failover on unhealthy hub
+      healthCheckInterval: 30s
+    hubs:
+      - name: eu-west-1
+        replicas: 1
+        resources:
+          gpu:
+            count: 1
+            type: nvidia-l4
+          memory: 8Gi
+          cpu: "2"
+      - name: us-east-1
+        replicas: 1
+        resources:
+          gpu:
+            count: 1
+            type: nvidia-a100
+          memory: 16Gi
+          cpu: "4"
+      - name: apac-southeast-1
+        replicas: 1
+        resources:
+          gpu:
+            count: 1
+            type: nvidia-l4
+          memory: 8Gi
+          cpu: "2"
+  storage:
+    - name: model-cache
+      mountPath: /root/.cache/huggingface
+      size: 30Gi
+      replicateAcrossHubs: true
+  networking:
+    expose: true
+    port: 8080
+    protocol: http
+    tls: true
+  env:
+    - name: PYTHONUNBUFFERED
+      value: "1"
+  metrics:
+    enable: true
+    interval: 30s
+    aggregateAcrossHubs: true
