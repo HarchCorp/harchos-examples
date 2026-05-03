@@ -1,0 +1,32 @@
+apiVersion: harchos.harchcorp.io/v1
+kind: Workload
+metadata:
+  name: streaming-inference
+  labels:
+    category: data-pipelines
+    difficulty: intermediate
+spec:
+  runtime: python:3.11
+  command: python streaming_inference.py --model distilbert-base-uncased-finetuned-sst-2-english --batch-size 8 --poll-interval 5
+  resources:
+    gpu:
+      count: 1
+      type: nvidia-l4
+    memory: 8Gi
+    cpu: "2"
+  storage:
+    - name: input-queue
+      mountPath: /data/input
+      size: 5Gi
+    - name: output-results
+      mountPath: /data/output
+      size: 20Gi
+  env:
+    - name: PYTHONUNBUFFERED
+      value: "1"
+  restartPolicy:
+    onFailure: restart
+    maxRetries: 3
+  metrics:
+    enable: true
+    interval: 15s
