@@ -1,0 +1,69 @@
+apiVersion: harchos.harchcorp.io/v1
+kind: Workload
+metadata:
+  name: carbon-optimized-inference
+  labels:
+    category: multi-hub
+    difficulty: advanced
+spec:
+  runtime: python:3.11
+  command: python carbon_optimizer.py --hubs eu-west-1,us-east-1,apac-southeast-1 --max-carbon 200
+  multiHub:
+    strategy: carbon-optimized
+    carbonPolicy:
+      maxIntensity: 200       # gCO2/kWh — don't route traffic above this
+      routingMode: greenest   # Always route to lowest-carbon hub
+      failoverMode: latency   # On all hubs above threshold, fall back to lowest-latency
+      rebalanceInterval: 60s  # How often to re-check carbon and re-balance
+    routing:
+      mode: carbon-weighted   # Weight traffic by 1/carbon_intensity
+      healthCheckInterval: 30s
+    hubs:
+      - name: eu-west-1
+        replicas: 1
+        carbonZone: low
+        resources:
+          gpu:
+            count: 1
+            type: nvidia-l4
+          memory: 8Gi
+          cpu: "2"
+      - name: us-east-1
+        replicas: 1
+        carbonZone: medium
+        resources:
+          gpu:
+            count: 1
+            type: nvidia-l4
+          memory: 8Gi
+          cpu: "2"
+      - name: apac-southeast-1
+        replicas: 1
+        carbonZone: high
+        resources:
+          gpu:
+            count: 1
+            type: nvidia-l4
+          memory: 8Gi
+          cpu: "2"
+  storage:
+    - name: model-cache
+      mountPath: /root/.cache/huggingface
+      size: 30Gi
+      replicateAcrossHubs: true
+  networking:
+    expose: true
+    port: 8080
+    protocol: http
+    tls: true
+  reporting:
+    carbonFootprint: true
+    interval: 3600
+  env:
+    - name: PYTHONUNBUFFERED
+      value: "1"
+  metrics:
+    enable: true
+    interval: 30s
+    aggregateAcrossHubs: true
+    includeCarbonMetrics: true
