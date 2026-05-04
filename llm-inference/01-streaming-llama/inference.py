@@ -227,8 +227,8 @@ def main():
 
     server = HTTPServer((args.host, args.port), InferenceHandler)
     print(f"Server running on http://{args.host}:{args.port}")
-    print(f"  POST /generate  — streaming inference")
-    print(f"  GET  /health    — health check")
+    print("  POST /generate  — streaming inference")
+    print("  GET  /health    — health check")
 
     try:
         server.serve_forever()

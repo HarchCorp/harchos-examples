@@ -13,7 +13,6 @@ Usage:
 
 import argparse
 import json
-import os
 import time
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from typing import List, Optional
@@ -420,9 +419,9 @@ def main():
     # Start server
     server = HTTPServer((args.host, args.port), RAGHandler)
     print(f"\nRAG Pipeline Server running on http://{args.host}:{args.port}")
-    print(f"  POST /query   — ask a question")
-    print(f"  POST /index   — add documents")
-    print(f"  GET  /health  — health check")
+    print("  POST /query   — ask a question")
+    print("  POST /index   — add documents")
+    print("  GET  /health  — health check")
 
     try:
         server.serve_forever()

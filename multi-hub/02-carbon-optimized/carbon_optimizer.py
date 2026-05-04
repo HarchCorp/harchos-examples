@@ -23,7 +23,7 @@ import json
 import math
 import time
 from datetime import datetime, timezone
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 try:
     from harchos import CarbonClient, HubClient
@@ -153,7 +153,7 @@ class CarbonOptimizer:
         if not eligible:
             # All hubs above threshold — route to least bad option
             print(f"  ⚠️  All hubs above carbon threshold ({self.max_carbon} gCO2/kWh)")
-            print(f"     Falling back to least-carbon hub")
+            print("     Falling back to least-carbon hub")
             eligible = [rankings[0]]
 
         # Inverse-intensity weighting: greener hubs get more traffic
@@ -171,7 +171,7 @@ class CarbonOptimizer:
 
     def deploy_optimized(self, hubs: List[str], model: str, replicas: int = 1):
         """Deploy to all hubs with carbon-optimized traffic routing."""
-        print(f"\nCarbon-Optimized Deployment")
+        print("\nCarbon-Optimized Deployment")
         print(f"  Model: {model}")
         print(f"  Max carbon: {self.max_carbon} gCO2/kWh")
         print(f"  Hubs: {', '.join(hubs)}")

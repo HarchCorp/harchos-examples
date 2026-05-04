@@ -245,7 +245,7 @@ def main():
     args = parser.parse_args()
 
     start_time = time.time()
-    print(f"ETL Pipeline")
+    print("ETL Pipeline")
     print(f"  Input:  {args.input}")
     print(f"  Output: {args.output}")
     print(f"  Chunk size: {args.chunk_size}")
@@ -314,7 +314,7 @@ def main():
     write_summary(results, args.output, pipeline_stats)
 
     print(f"\n{'='*50}")
-    print(f"PIPELINE COMPLETE")
+    print("PIPELINE COMPLETE")
     print(f"{'='*50}")
     print(f"  Files processed: {len(files)}")
     print(f"  Rows in:         {total_rows_in:,}")

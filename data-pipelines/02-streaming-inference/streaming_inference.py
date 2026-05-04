@@ -24,7 +24,7 @@ from pathlib import Path
 import torch
 
 try:
-    from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipeline
+    from transformers import pipeline  # noqa: F401
     TRANSFORMERS_AVAILABLE = True
 except ImportError:
     TRANSFORMERS_AVAILABLE = False
@@ -320,7 +320,7 @@ def run_pipeline(args):
     except KeyboardInterrupt:
         print("\n\nStopping pipeline...")
 
-    print(f"\nPipeline Summary:")
+    print("\nPipeline Summary:")
     print(f"  Total processed: {total_processed}")
     print(f"  Total errors:    {total_errors}")
     print(f"  Output dir:      {queue.output_dir}")

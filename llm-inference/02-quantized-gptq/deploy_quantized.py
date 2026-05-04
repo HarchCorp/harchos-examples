@@ -220,9 +220,9 @@ def main():
 
     server = HTTPServer((args.host, args.port), QuantizedInferenceHandler)
     print(f"\nGPTQ Inference Server running on http://{args.host}:{args.port}")
-    print(f"  POST /generate   — generate text")
-    print(f"  POST /benchmark  — run throughput benchmark")
-    print(f"  GET  /health     — health check")
+    print("  POST /generate   — generate text")
+    print("  POST /benchmark  — run throughput benchmark")
+    print("  GET  /health     — health check")
 
     try:
         server.serve_forever()

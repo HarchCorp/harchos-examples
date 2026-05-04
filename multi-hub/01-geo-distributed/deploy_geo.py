@@ -11,13 +11,12 @@ Usage:
 """
 
 import argparse
-import json
 import time
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
 try:
-    from harchos import HubClient, DeploymentManager
+    from harchos import HubClient  # noqa: F401
     HARCHOS_AVAILABLE = True
 except ImportError:
     HARCHOS_AVAILABLE = False
@@ -115,7 +114,7 @@ def deploy_multi_hub(hub_client, hubs: List[str], model: str, replicas: int):
             print(f"  FAILED on {hub}: {e}")
             results.append({"hub": hub, "status": "failed", "error": str(e)})
 
-    print(f"\nDeployment Summary:")
+    print("\nDeployment Summary:")
     print("-" * 50)
     for r in results:
         status = r.get("status", "unknown")

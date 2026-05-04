@@ -11,7 +11,6 @@ Usage:
 """
 
 import argparse
-import json
 import os
 import time
 from datetime import datetime, timezone
@@ -284,7 +283,7 @@ def main():
     training_time = elapsed - total_carbon_wait_time
 
     print(f"\n{'='*50}")
-    print(f"TRAINING COMPLETE")
+    print("TRAINING COMPLETE")
     print(f"{'='*50}")
     print(f"  Total wall time:     {elapsed:.1f}s")
     print(f"  Training time:       {training_time:.1f}s")
