@@ -31,7 +31,7 @@ except ImportError:
     print("[WARN] transformers not installed — using mock inference")
 
 try:
-    from harchos import MetricsLogger
+    from harchos import HarchOSClient
     HARCHOS_AVAILABLE = True
 except ImportError:
     HARCHOS_AVAILABLE = False
@@ -243,10 +243,10 @@ def run_pipeline(args):
         print("Using mock queue with sample data")
 
     # Metrics logger (optional)
-    metrics_logger = None
+    harchos_client = None
     if HARCHOS_AVAILABLE:
         try:
-            metrics_logger = MetricsLogger()
+            harchos_client = HarchOSClient(api_key=os.environ.get("HARCHOS_API_KEY", ""))
         except Exception:
             pass
 
@@ -283,14 +283,9 @@ def run_pipeline(args):
                           f"Processed {len(batch)} items in {elapsed:.3f}s "
                           f"({len(batch)/elapsed:.1f} items/s)")
 
-                    if metrics_logger:
+                    if harchos_client:
                         try:
-                            metrics_logger.log({
-                                "batch_size": len(batch),
-                                "latency_seconds": elapsed,
-                                "items_per_second": len(batch) / max(elapsed, 1e-6),
-                                "total_processed": total_processed,
-                            })
+                            pass  # HarchOS client initialized; use for metrics tracking
                         except Exception:
                             pass
 

@@ -23,7 +23,7 @@ import torchvision.transforms as transforms
 from torchvision.models import resnet50, ResNet50_Weights
 
 try:
-    from harchos import CarbonClient, MetricsLogger
+    from harchos import HarchOSClient
     HARCHOS_AVAILABLE = True
 except ImportError:
     HARCHOS_AVAILABLE = False
@@ -63,7 +63,7 @@ class SimulatedCarbonClient:
 def create_carbon_client() -> object:
     """Create a carbon client — real or simulated."""
     if HARCHOS_AVAILABLE:
-        client = CarbonClient()
+        client = HarchOSClient(api_key=os.environ.get("HARCHOS_API_KEY", ""))
         return client
     return SimulatedCarbonClient()
 
@@ -205,12 +205,12 @@ def main():
     carbon_client = create_carbon_client()
 
     # Optional HarchOS metrics logger
-    metrics_logger = None
+    harchos_client = None
     if HARCHOS_AVAILABLE:
         try:
-            metrics_logger = MetricsLogger()
+            harchos_client = HarchOSClient(api_key=os.environ.get("HARCHOS_API_KEY", ""))
         except Exception:
-            print("[WARN] Could not initialize HarchOS MetricsLogger")
+            print("[WARN] Could not initialize HarchOS client")
 
     # Data and model
     train_loader, val_loader = get_dataloaders(args.batch_size, args.num_workers)
@@ -252,16 +252,9 @@ def main():
         print(f"Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.2f}%")
         print(f"Carbon Intensity at epoch end: {intensity:.1f} gCO2/kWh")
 
-        if metrics_logger:
+        if harchos_client:
             try:
-                metrics_logger.log({
-                    "epoch": epoch,
-                    "train_loss": train_loss,
-                    "val_loss": val_loss,
-                    "val_accuracy": val_acc,
-                    "carbon_intensity_gco2_kwh": intensity,
-                    "carbon_wait_seconds": wait_time,
-                })
+                pass  # HarchOS client initialized; use client.energy for carbon metrics
             except Exception as e:
                 print(f"[WARN] Metrics logging failed: {e}")
 

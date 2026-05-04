@@ -396,6 +396,8 @@ def main():
     parser.add_argument("--device", type=str, default="auto")
     parser.add_argument("--no-sample-data", action="store_true",
                         help="Skip loading sample documents")
+    parser.add_argument("--build-index-only", action="store_true",
+                        help="Build FAISS index and exit without starting the server")
     args = parser.parse_args()
 
     global doc_store, generator
@@ -415,6 +417,14 @@ def main():
     if not args.no_sample_data:
         print("\nLoading sample documents...")
         doc_store.add_documents(SAMPLE_DOCUMENTS)
+
+    # If --build-index-only, exit after building the index
+    if args.build_index_only:
+        print("\nIndex built successfully!")
+        print(f"  Documents: {doc_store.stats['num_documents']}")
+        print(f"  Chunks: {doc_store.stats['num_chunks']}")
+        print(f"  Index type: {doc_store.stats['index_type']}")
+        return
 
     # Start server
     server = HTTPServer((args.host, args.port), RAGHandler)

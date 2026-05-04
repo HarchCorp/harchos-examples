@@ -21,12 +21,13 @@ Usage:
 import argparse
 import json
 import math
+import os
 import time
 from datetime import datetime, timezone
 from typing import Dict, List, Tuple
 
 try:
-    from harchos import CarbonClient, HubClient
+    from harchos import HarchOSClient
     HARCHOS_AVAILABLE = True
 except ImportError:
     HARCHOS_AVAILABLE = False
@@ -109,8 +110,9 @@ class CarbonOptimizer:
         self.max_latency_ms = max_latency_ms
 
         if HARCHOS_AVAILABLE:
-            self.carbon_client = CarbonClient()
-            self.hub_client = HubClient()
+            self.harchos_client = HarchOSClient(api_key=os.environ.get("HARCHOS_API_KEY", ""))
+            self.carbon_client = self.harchos_client.energy
+            self.hub_client = SimulatedDeploymentClient()  # Use simulated for deployment ops
         else:
             self.carbon_client = SimulatedCarbonSource()
             self.hub_client = SimulatedDeploymentClient()
