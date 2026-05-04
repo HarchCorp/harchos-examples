@@ -1,0 +1,148 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Lint & Validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install linting tools
+        run: |
+          pip install ruff yamllint
+
+      - name: Lint Python files
+        run: |
+          ruff check . --select E,F,W --ignore E501
+
+      - name: Validate YAML workload manifests
+        run: |
+          find . -name "workload.yaml" -exec yamllint -d relaxed {} \;
+
+  validate-scripts:
+    name: Validate Example Scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install minimal dependencies
+        run: |
+          pip install pyyaml
+
+      - name: Check Python syntax
+        run: |
+          python -m py_compile pytorch-training/01-basic-resnet50/train.py
+          python -m py_compile pytorch-training/02-distributed-ddp/train_ddp.py
+          python -m py_compile pytorch-training/03-carbon-aware-training/train_carbon_aware.py
+          python -m py_compile llm-inference/01-streaming-llama/inference.py
+          python -m py_compile llm-inference/02-quantized-gptq/deploy_quantized.py
+          python -m py_compile llm-inference/03-rag-pipeline/rag_pipeline.py
+          python -m py_compile data-pipelines/01-etl-pipeline/etl_pipeline.py
+          python -m py_compile data-pipelines/02-streaming-inference/streaming_inference.py
+          python -m py_compile multi-hub/01-geo-distributed/deploy_geo.py
+          python -m py_compile multi-hub/02-carbon-optimized/carbon_optimizer.py
+
+      - name: Validate workload manifests
+        run: |
+          python -c "
+          import yaml, glob, sys
+          errors = []
+          for path in glob.glob('**/workload.yaml', recursive=True):
+              try:
+                  with open(path) as f:
+                      doc = yaml.safe_load(f)
+                  if 'apiVersion' not in doc:
+                      errors.append(f'{path}: missing apiVersion')
+                  if 'kind' not in doc:
+                      errors.append(f'{path}: missing kind')
+                  if 'metadata' not in doc:
+                      errors.append(f'{path}: missing metadata')
+              except Exception as e:
+                  errors.append(f'{path}: {e}')
+          if errors:
+              for e in errors:
+                  print(f'ERROR: {e}', file=sys.stderr)
+              sys.exit(1)
+          print(f'All workload manifests validated successfully')
+          "
+
+  check-structure:
+    name: Check Directory Structure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify expected files exist
+        run: |
+          EXPECTED_FILES=(
+            "pytorch-training/01-basic-resnet50/README.md"
+            "pytorch-training/01-basic-resnet50/train.py"
+            "pytorch-training/01-basic-resnet50/workload.yaml"
+            "pytorch-training/01-basic-resnet50/requirements.txt"
+            "pytorch-training/02-distributed-ddp/README.md"
+            "pytorch-training/02-distributed-ddp/train_ddp.py"
+            "pytorch-training/02-distributed-ddp/workload.yaml"
+            "pytorch-training/02-distributed-ddp/requirements.txt"
+            "pytorch-training/03-carbon-aware-training/README.md"
+            "pytorch-training/03-carbon-aware-training/train_carbon_aware.py"
+            "pytorch-training/03-carbon-aware-training/workload.yaml"
+            "pytorch-training/03-carbon-aware-training/requirements.txt"
+            "llm-inference/01-streaming-llama/README.md"
+            "llm-inference/01-streaming-llama/inference.py"
+            "llm-inference/01-streaming-llama/inference.ts"
+            "llm-inference/01-streaming-llama/workload.yaml"
+            "llm-inference/02-quantized-gptq/README.md"
+            "llm-inference/02-quantized-gptq/deploy_quantized.py"
+            "llm-inference/02-quantized-gptq/workload.yaml"
+            "llm-inference/03-rag-pipeline/README.md"
+            "llm-inference/03-rag-pipeline/rag_pipeline.py"
+            "llm-inference/03-rag-pipeline/workload.yaml"
+            "llm-inference/03-rag-pipeline/requirements.txt"
+            "data-pipelines/01-etl-pipeline/README.md"
+            "data-pipelines/01-etl-pipeline/etl_pipeline.py"
+            "data-pipelines/01-etl-pipeline/workload.yaml"
+            "data-pipelines/02-streaming-inference/README.md"
+            "data-pipelines/02-streaming-inference/streaming_inference.py"
+            "data-pipelines/02-streaming-inference/workload.yaml"
+            "multi-hub/01-geo-distributed/README.md"
+            "multi-hub/01-geo-distributed/deploy_geo.py"
+            "multi-hub/01-geo-distributed/workload.yaml"
+            "multi-hub/02-carbon-optimized/README.md"
+            "multi-hub/02-carbon-optimized/carbon_optimizer.py"
+            "multi-hub/02-carbon-optimized/workload.yaml"
+            "README.md"
+            "LICENSE"
+            "CONTRIBUTING.md"
+            ".gitignore"
+          )
+
+          missing=0
+          for f in "${EXPECTED_FILES[@]}"; do
+            if [ ! -f "$f" ]; then
+              echo "MISSING: $f"
+              missing=$((missing + 1))
+            fi
+          done
+
+          if [ $missing -gt 0 ]; then
+            echo "ERROR: $missing file(s) missing"
+            exit 1
+          fi
+
+          echo "All expected files present ✅"
