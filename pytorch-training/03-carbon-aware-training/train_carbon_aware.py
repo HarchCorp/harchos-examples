@@ -254,7 +254,10 @@ def main():
 
         if harchos_client:
             try:
-                pass  # HarchOS client initialized; use client.energy for carbon metrics
+                carbon_data = harchos_client.carbon.intensity(zone=args.region)
+                energy_metrics = harchos_client.energy.metrics()
+                print(f"  [HarchOS] Carbon intensity: {carbon_data.get('intensity_gco2_kwh', 'N/A')} gCO2/kWh")
+                print(f"  [HarchOS] Energy consumed: {energy_metrics.get('energy_kwh', 'N/A')} kWh")
             except Exception as e:
                 print(f"[WARN] Metrics logging failed: {e}")
 

@@ -267,40 +267,74 @@ def main():
         print(f"\nProcessing: {filename}")
         print("-" * 40)
 
-        # Read
         if args.chunk_size > 0:
+            # Chunked processing: process each chunk individually
             chunks = pd.read_csv(filepath, chunksize=args.chunk_size)
-            df_list = [chunk for chunk in chunks]
-            df = pd.concat(df_list, ignore_index=True)
+            chunk_results = []
+            all_output_paths = []
+
+            for chunk_idx, chunk in enumerate(chunks):
+                chunk_label = f"  Chunk {chunk_idx + 1}"
+                total_rows_in += len(chunk)
+                print(f"{chunk_label}: Read {len(chunk)} rows")
+
+                # Validate
+                report = validate(chunk, f"{filename} (chunk {chunk_idx + 1})")
+                print(f"{chunk_label}: Validation {report['status']} ({len(report['issues'])} issues)")
+
+                # Transform
+                chunk = transform(chunk, date_column=args.date_column)
+                total_rows_out += len(chunk)
+
+                # Load — each chunk gets its own parquet file
+                chunk_filename = f"{os.path.splitext(filename)[0]}_chunk{chunk_idx + 1}.parquet"
+                output_path = load(chunk, args.output, chunk_filename)
+                all_output_paths.append(output_path)
+
+                chunk_results.append({
+                    "chunk": chunk_idx + 1,
+                    "rows_in": report["rows"],
+                    "rows_out": len(chunk),
+                    "validation": report["status"],
+                })
+
+            results.append({
+                "input": filepath,
+                "output": ", ".join(all_output_paths),
+                "rows_in": sum(r["rows_in"] for r in chunk_results),
+                "rows_out": sum(r["rows_out"] for r in chunk_results),
+                "validation": "PASS" if all(r["validation"] == "PASS" for r in chunk_results) else "WARN",
+                "chunks": len(chunk_results),
+            })
         else:
+            # Non-chunked processing
             df = pd.read_csv(filepath)
+            total_rows_in += len(df)
+            print(f"  Read {len(df)} rows")
 
-        total_rows_in += len(df)
-        print(f"  Read {len(df)} rows")
+            # Validate
+            print("  Validating...")
+            report = validate(df, filename)
+            print(f"  Validation: {report['status']} ({len(report['issues'])} issues)")
+            for issue in report["issues"]:
+                print(f"    - {issue}")
 
-        # Validate
-        print("  Validating...")
-        report = validate(df, filename)
-        print(f"  Validation: {report['status']} ({len(report['issues'])} issues)")
-        for issue in report["issues"]:
-            print(f"    - {issue}")
+            # Transform
+            print("  Transforming...")
+            df = transform(df, date_column=args.date_column)
+            total_rows_out += len(df)
 
-        # Transform
-        print("  Transforming...")
-        df = transform(df, date_column=args.date_column)
-        total_rows_out += len(df)
+            # Load
+            print("  Loading...")
+            output_path = load(df, args.output, filename)
 
-        # Load
-        print("  Loading...")
-        output_path = load(df, args.output, filename)
-
-        results.append({
-            "input": filepath,
-            "output": output_path,
-            "rows_in": report["rows"],
-            "rows_out": len(df),
-            "validation": report["status"],
-        })
+            results.append({
+                "input": filepath,
+                "output": output_path,
+                "rows_in": report["rows"],
+                "rows_out": len(df),
+                "validation": report["status"],
+            })
 
     # Summary
     elapsed = time.time() - start_time

@@ -285,7 +285,8 @@ def run_pipeline(args):
 
                     if harchos_client:
                         try:
-                            pass  # HarchOS client initialized; use for metrics tracking
+                            carbon_data = harchos_client.carbon.intensity()
+                            print(f"  [HarchOS] Carbon intensity: {carbon_data.get('intensity_gco2_kwh', 'N/A')} gCO2/kWh — {len(batch)} items processed")
                         except Exception:
                             pass
 
