@@ -10,7 +10,7 @@
  *   HARCHOS_API_KEY=hsk_... npx ts-node platform_metrics.ts
  */
 
-import { HarchOSClient } from "harchos";
+import HarchOS from "@harchos/sdk";
 import type { PlatformMetrics } from "harchos";
 
 // ---------------------------------------------------------------------------
@@ -104,12 +104,12 @@ async function main(): Promise<void> {
   console.log("=".repeat(60));
 
   let useSdk = false;
-  let client: HarchOSClient | null = null;
+  let client: HarchOS | null = null;
 
   try {
     const apiKey = process.env.HARCHOS_API_KEY || "";
     if (apiKey) {
-      client = new HarchOSClient({ apiKey });
+      client = new HarchOS({ apiKey });
       useSdk = true;
     }
   } catch {

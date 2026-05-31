@@ -11,7 +11,7 @@
  *   npx ts-node health_check.ts --exit-code
  */
 
-import { HarchOSClient } from "harchos";
+import HarchOS from "@harchos/sdk";
 import type { DetailedHealth } from "harchos";
 
 // ---------------------------------------------------------------------------
@@ -110,12 +110,12 @@ async function main(): Promise<void> {
   console.log("=".repeat(60));
 
   let useSdk = false;
-  let client: HarchOSClient | null = null;
+  let client: HarchOS | null = null;
 
   try {
     const apiKey = process.env.HARCHOS_API_KEY || "";
     if (apiKey) {
-      client = new HarchOSClient({ apiKey });
+      client = new HarchOS({ apiKey });
       useSdk = true;
     }
   } catch {

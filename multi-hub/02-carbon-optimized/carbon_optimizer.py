@@ -27,7 +27,7 @@ from datetime import datetime, timezone
 from typing import Dict, List, Tuple
 
 try:
-    from harchos import HarchOSClient
+    from harchos import HarchOS
     HARCHOS_AVAILABLE = True
 except ImportError:
     HARCHOS_AVAILABLE = False
@@ -110,7 +110,7 @@ class CarbonOptimizer:
         self.max_latency_ms = max_latency_ms
 
         if HARCHOS_AVAILABLE:
-            self.harchos_client = HarchOSClient(api_key=os.environ.get("HARCHOS_API_KEY", ""))
+            self.harchos_client = HarchOS(api_key=os.environ.get("HARCHOS_API_KEY", ""))
             self.carbon_client = self.harchos_client.energy
             self.hub_client = SimulatedDeploymentClient()  # Use simulated for deployment ops
         else:

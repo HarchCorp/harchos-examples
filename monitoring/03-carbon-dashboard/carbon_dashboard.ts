@@ -10,7 +10,7 @@
  *   npx ts-node carbon_dashboard.ts --carbon-budget 5000
  */
 
-import { HarchOSClient } from "harchos";
+import HarchOS from "@harchos/sdk";
 import type { PlatformMetrics } from "harchos";
 
 // ---------------------------------------------------------------------------
@@ -195,7 +195,7 @@ async function main(): Promise<void> {
   const apiKey = process.env.HARCHOS_API_KEY || "";
   if (apiKey) {
     try {
-      const client = new HarchOSClient({ apiKey });
+      const client = new HarchOS({ apiKey });
       metrics = await client.monitoring.metrics();
       console.log("  [INFO] Using live metrics from HarchOS API");
     } catch (err) {

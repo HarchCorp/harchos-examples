@@ -24,7 +24,7 @@ from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
 try:
-    from harchos import HarchOSClient
+    from harchos import HarchOS
     HARCHOS_AVAILABLE = True
 except ImportError:
     HARCHOS_AVAILABLE = False
@@ -162,7 +162,7 @@ class CostEstimator:
 
     def __init__(self):
         if HARCHOS_AVAILABLE:
-            self.client = HarchOSClient(api_key=os.environ.get("HARCHOS_API_KEY", ""))
+            self.client = HarchOS(api_key=os.environ.get("HARCHOS_API_KEY", ""))
         else:
             self.client = SimulatedPricingClient()
 

@@ -31,7 +31,7 @@ except ImportError:
     print("[WARN] transformers not installed — using mock inference")
 
 try:
-    from harchos import HarchOSClient
+    from harchos import HarchOS
     HARCHOS_AVAILABLE = True
 except ImportError:
     HARCHOS_AVAILABLE = False
@@ -246,7 +246,7 @@ def run_pipeline(args):
     harchos_client = None
     if HARCHOS_AVAILABLE:
         try:
-            harchos_client = HarchOSClient(api_key=os.environ.get("HARCHOS_API_KEY", ""))
+            harchos_client = HarchOS(api_key=os.environ.get("HARCHOS_API_KEY", ""))
         except Exception:
             pass
 

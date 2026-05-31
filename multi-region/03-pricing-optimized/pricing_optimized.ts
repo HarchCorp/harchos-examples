@@ -9,7 +9,7 @@
  *   npx ts-node pricing_optimized.ts --carbon-max 100
  */
 
-import { HarchOSClient } from "harchos";
+import HarchOS from "@harchos/sdk";
 import type { Region, PricingPlan, EstimateCostParams } from "harchos";
 
 // ---------------------------------------------------------------------------
@@ -214,7 +214,7 @@ async function main(): Promise<void> {
   const apiKey = process.env.HARCHOS_API_KEY || "";
   if (apiKey) {
     try {
-      const client = new HarchOSClient({ apiKey });
+      const client = new HarchOS({ apiKey });
       const regions = await client.regions.list({ available: true });
       console.log(`\n  📍 Available Regions (from API): ${regions.length}`);
       for (const r of regions) {

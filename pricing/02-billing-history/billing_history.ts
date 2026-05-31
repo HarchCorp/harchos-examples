@@ -11,7 +11,7 @@
  *   HARCHOS_API_KEY=hsk_... npx ts-node billing_history.ts
  */
 
-import { HarchOSClient } from "harchos";
+import HarchOS from "@harchos/sdk";
 import type { BillingRecord, ListBillingRecordsParams } from "harchos";
 
 // ---------------------------------------------------------------------------
@@ -197,7 +197,7 @@ async function main(): Promise<void> {
   const apiKey = process.env.HARCHOS_API_KEY || "";
   if (apiKey) {
     try {
-      const client = new HarchOSClient({ apiKey });
+      const client = new HarchOS({ apiKey });
       const params: ListBillingRecordsParams = {};
       if (statusFilter) params.status = statusFilter;
 

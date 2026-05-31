@@ -23,7 +23,7 @@ import torchvision.transforms as transforms
 from torchvision.models import resnet50, ResNet50_Weights
 
 try:
-    from harchos import HarchOSClient
+    from harchos import HarchOS
     HARCHOS_AVAILABLE = True
 except ImportError:
     HARCHOS_AVAILABLE = False
@@ -63,7 +63,7 @@ class SimulatedCarbonClient:
 def create_carbon_client() -> object:
     """Create a carbon client — real or simulated."""
     if HARCHOS_AVAILABLE:
-        client = HarchOSClient(api_key=os.environ.get("HARCHOS_API_KEY", ""))
+        client = HarchOS(api_key=os.environ.get("HARCHOS_API_KEY", ""))
         return client
     return SimulatedCarbonClient()
 
@@ -208,7 +208,7 @@ def main():
     harchos_client = None
     if HARCHOS_AVAILABLE:
         try:
-            harchos_client = HarchOSClient(api_key=os.environ.get("HARCHOS_API_KEY", ""))
+            harchos_client = HarchOS(api_key=os.environ.get("HARCHOS_API_KEY", ""))
         except Exception:
             print("[WARN] Could not initialize HarchOS client")
 

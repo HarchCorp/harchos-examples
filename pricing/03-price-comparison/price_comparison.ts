@@ -11,7 +11,7 @@
  *   npx ts-node price_comparison.ts --include-carbon
  */
 
-import { HarchOSClient } from "harchos";
+import HarchOS from "@harchos/sdk";
 import type { PricingPlan, ListPricingPlansParams } from "harchos";
 
 // ---------------------------------------------------------------------------
@@ -185,7 +185,7 @@ async function main(): Promise<void> {
   const apiKey = process.env.HARCHOS_API_KEY || "";
   if (apiKey) {
     try {
-      const client = new HarchOSClient({ apiKey });
+      const client = new HarchOS({ apiKey });
       const params: ListPricingPlansParams = {};
       if (gpuType) params.gpuType = gpuType as any;
 

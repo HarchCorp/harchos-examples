@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
 try:
-    from harchos import HarchOSClient  # noqa: F401
+    from harchos import HarchOS  # noqa: F401
     HARCHOS_AVAILABLE = True
 except ImportError:
     HARCHOS_AVAILABLE = False
@@ -93,7 +93,7 @@ class SimulatedHubClient:
 def create_hub_client():
     """Create a hub client — real or simulated."""
     if HARCHOS_AVAILABLE:
-        return HarchOSClient(api_key=os.environ.get("HARCHOS_API_KEY", ""))
+        return HarchOS(api_key=os.environ.get("HARCHOS_API_KEY", ""))
     return SimulatedHubClient()
 
 

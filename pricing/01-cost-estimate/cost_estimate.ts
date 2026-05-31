@@ -10,7 +10,7 @@
  *   HARCHOS_API_KEY=hsk_... npx ts-node cost_estimate.ts --gpu-type H100 --gpu-count 8
  */
 
-import { HarchOSClient } from "harchos";
+import HarchOS from "@harchos/sdk";
 import type {
   PricingPlan,
   CostEstimate,
@@ -168,12 +168,12 @@ async function main(): Promise<void> {
 
   // Try using SDK, fall back to simulated data
   let useSdk = false;
-  let client: HarchOSClient | null = null;
+  let client: HarchOS | null = null;
 
   try {
     const apiKey = process.env.HARCHOS_API_KEY || "";
     if (apiKey) {
-      client = new HarchOSClient({ apiKey });
+      client = new HarchOS({ apiKey });
       useSdk = true;
     }
   } catch {
